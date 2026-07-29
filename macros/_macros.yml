@@ -1,0 +1,23 @@
+version: 2
+
+macros:
+  - name: generate_event_key
+    description: >
+      Generates a deterministic, null-safe key for an interaction event using
+      dbt_utils.generate_surrogate_key.
+    arguments:
+      - name: event_type
+        type: string
+        description: SQL expression for the cleaned event type.
+      - name: user_id
+        type: string
+        description: SQL expression for the cleaned user identifier.
+      - name: episode_id
+        type: string
+        description: SQL expression for the cleaned episode identifier.
+      - name: event_timestamp
+        type: string
+        description: SQL expression for the parsed event timestamp.
+      - name: event_duration
+        type: string
+        description: SQL expression for the parsed event duration.

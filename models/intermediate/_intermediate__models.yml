@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: int_valid_events
+    description: >
+      Valid events at one row per stable event key. Records must have supported
+      event types, valid identifiers and timestamps, non-negative durations,
+      and matching user and episode references. Materialized as ephemeral.
+
+  - name: int_rejected_events
+    description: >
+      Rejected event audit view at one row per rejected event key, including
+      raw values, parsed values, and a semicolon-delimited rejection reason.

@@ -1,0 +1,142 @@
+version: 2
+
+models:
+  - name: rpt_top_episodes_by_completion
+    description: >
+      Top ten episodes by valid completion-event count during the latest seven
+      calendar days in the dataset. Grain is one row per ranked episode, with
+      at most ten rows. Repeated non-identical completion events count
+      separately; exact duplicates were removed upstream. The window ends at
+      the maximum valid event timestamp rather than the system date.
+    tests:
+      # The leaderboard contract permits at most ten episode rows.
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          arguments:
+            min_value: 0
+            max_value: 10
+      # Recalculate completion counts from the clean flat-event input for only
+      # the episodes selected into the top ten, then compare at episode grain.
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          arguments:
+            expression: sum(completion_count)
+            group_by:
+              - episode_id
+            compare_model: ref('flat_interaction_events')
+            compare_expression: count(*)
+            compare_group_by:
+              - episode_id
+            compare_row_condition: >
+              event_type = 'complete'
+              and cast(timestamp as date) >= dateadd(
+                day,
+                -6,
+                (
+                  select cast(max(timestamp) as date)
+                  from {{ ref('flat_interaction_events') }}
+                )
+              )
+              and timestamp <= (
+                select max(timestamp)
+                from {{ ref('flat_interaction_events') }}
+              )
+              and episode_id in (
+                select episode_id
+                from {{ ref('rpt_top_episodes_by_completion') }}
+              )
+    columns:
+      - name: episode_id
+        description: Episode identifier and report grain.
+        tests:
+          - not_null
+          - unique
+      - name: title
+        description: Episode title.
+      - name: podcast_id
+        description: Podcast containing the episode.
+      - name: completion_count
+        description: Count of valid completion events in the seven-day window.
+        tests:
+          - not_null
+
+  - name: rpt_average_listen_through_by_country
+    description: >
+      One row per country containing the average completion-duration ratio.
+      The input grain is one user and episode, using that pair's maximum capped
+      completion-event duration divided by positive episode duration. This is
+      a proxy rather than sessionized listen-through because duration semantics
+      and session IDs are unavailable.
+    tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          arguments:
+            min_value: 1
+    columns:
+      - name: country
+        description: Report grain; missing source country is NOT MAPPED.
+        tests:
+          - not_null
+          - unique
+      - name: distinct_user_count
+        description: Distinct users contributing a valid user-episode ratio.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
+      - name: user_episode_observation_count
+        description: Number of user-episode observations in the country.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
+      - name: average_listen_through_rate
+        description: Average completion-duration ratio expressed from 0 to 1.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: average_listen_through_percentage
+        description: Average completion-duration ratio expressed as a percentage.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                max_value: 100
+
+  - name: rpt_highly_engaged_daily_listeners
+    description: >
+      Single-row report counting distinct users and user-days with at least
+      three distinct episodes having a play or complete event on one calendar
+      day. Multiple events for the same user, episode, and day count once. A
+      qualifying event is an activity proxy; no minimum duration or session
+      reconstruction is available.
+    tests:
+      # The aggregate always returns exactly one summary row, including when no
+      # user-day meets the threshold.
+      - dbt_expectations.expect_table_row_count_to_equal:
+          arguments:
+            value: 1
+      # Every qualifying user contributes at least one qualifying user-day.
+      - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+          arguments:
+            column_A: qualifying_user_day_count
+            column_B: distinct_qualifying_user_count
+            or_equal: true
+    columns:
+      - name: distinct_qualifying_user_count
+        description: Distinct users with at least one qualifying user-day.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+      - name: qualifying_user_day_count
+        description: Total user-days meeting the three-episode threshold.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0

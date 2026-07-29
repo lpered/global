@@ -1,0 +1,11 @@
+version: 2
+
+seeds:
+  - name: raw_users
+    description: Raw user reference data supplied as a CSV for this exercise.
+
+  - name: raw_episodes
+    description: Raw episode reference data supplied as a CSV for this exercise.
+
+  - name: raw_event_logs
+    description: Raw podcast interaction events supplied as a CSV for this exercise.

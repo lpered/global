@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 
 PROJECT_DIR = Path("/app")
 TARGET_DIR = PROJECT_DIR / "target"
-PUBLISH_DIR = Path("/published-docs")
+PUBLISH_DIR = Path("/published-docs/current")
 DOC_FILES = ("index.html", "manifest.json", "catalog.json")
 
 

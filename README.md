@@ -393,6 +393,12 @@ attempt, and keeps serving the last successfully generated documentation. A
 container restart also triggers an immediate retry while `DBT_RUN_ON_START` is
 enabled.
 
+Generated documentation is published under a dedicated `current/` directory in
+the shared volume. This prevents Nginx's packaged welcome page from being served
+before dbt creates its own `index.html`. Until the first successful dbt build,
+the docs service is intentionally unhealthy and returns no documentation; check
+the `dbt-scheduler` container logs for the underlying dbt or Snowflake error.
+
 A production workflow would:
 
 1. Ingest source data and attach a trustworthy `_loaded_at` value.

@@ -350,7 +350,7 @@ dbt docs serve
 
 ### 8.1 Portainer deployment
 
-The repository includes `global/compose.portainer.yml`, which creates two services:
+The repository includes `global/docker-compose.yml`, which creates two services:
 
 1. `dbt-scheduler` runs the production dbt build at startup and then once each
    day. After a successful build it generates and publishes dbt docs.
@@ -361,7 +361,7 @@ In Portainer Business Edition:
 1. Push this repository to a private Git repository accessible by Portainer.
 2. Open **Stacks**, choose **Add stack**, select **Git repository**, and enter
    the repository URL and credentials.
-3. Set **Compose path** to `global/compose.portainer.yml` and enable automatic Git
+3. Set **Compose path** to `global/docker-compose.yml` and enable automatic Git
    updates/webhooks if desired.
 4. Add the environment variables shown in `global/.env.portainer.example` in
    Portainer. Store the Snowflake password as a secret or restricted stack

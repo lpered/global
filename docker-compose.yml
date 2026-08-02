@@ -5,8 +5,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      TZ: ${TZ:-Europe/London}
-      DBT_RUN_TIME: ${DBT_RUN_TIME:-02:00}
+      TZ: ${TZ:-UTC}
+      DBT_RUN_TIME: ${DBT_RUN_TIME:-07:00}
       DBT_RUN_ON_START: ${DBT_RUN_ON_START:-true}
       DBT_TARGET: ${DBT_TARGET:-prod}
       DBT_FULL_REFRESH: ${DBT_FULL_REFRESH:-false}
@@ -27,16 +27,18 @@ services:
       start_period: 5m
 
   dbt-docs:
-    image: nginx:1.27-alpine
+    build:
+      context: .
+      dockerfile: docker/nginx.Dockerfile
     restart: unless-stopped
     depends_on:
       - dbt-scheduler
     ports:
-      - "${DBT_DOCS_PORT:-8080}:80"
+      - "${DBT_DOCS_PORT:-33005}:33006"
     volumes:
       - dbt_docs:/usr/share/nginx/html:ro
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:33006/ || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3

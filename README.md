@@ -367,11 +367,11 @@ In Portainer Business Edition:
    Portainer. Store the Snowflake password as a secret or restricted stack
    variable; do not commit a populated `.env` file.
 5. Deploy the stack and inspect the `dbt-scheduler` logs. By default it runs
-   immediately and then every day at 02:00 in `Europe/London`.
+   immediately and then every day at 07:00 UTC.
 
-The documentation is exposed at `http://<vps-address>:8080`. To publish it at
+The documentation is exposed at `http://<vps-address>:33005`. To publish it at
 `https://docs.example.com`, create a DNS record pointing to the VPS and configure
-the VPS's existing reverse proxy to forward that hostname to port 8080. Enable
+the VPS's existing reverse proxy to forward that hostname to port 33005. Enable
 TLS and authentication at the proxy; dbt docs expose model names, compiled SQL,
 lineage, and warehouse metadata. If the reverse proxy runs in Docker, attach
 `dbt-docs` to its external network and proxy directly to `dbt-docs:80` instead
@@ -381,12 +381,12 @@ Useful stack settings are:
 
 | Variable | Default | Meaning |
 |---|---:|---|
-| `TZ` | `Europe/London` | IANA timezone used by the schedule, including DST |
-| `DBT_RUN_TIME` | `02:00` | Daily local run time in 24-hour `HH:MM` format |
+| `TZ` | `UTC` | IANA timezone used by the schedule |
+| `DBT_RUN_TIME` | `07:00` | Daily local run time in 24-hour `HH:MM` format |
 | `DBT_RUN_ON_START` | `true` | Run once when the scheduler container starts |
 | `DBT_TARGET` | `prod` | dbt profile target |
 | `DBT_FULL_REFRESH` | `false` | Add `--full-refresh` to every scheduled build |
-| `DBT_DOCS_PORT` | `8080` | VPS port serving documentation |
+| `DBT_DOCS_PORT` | `33005` | VPS port mapped to Nginx port `33006` |
 
 If a run fails, the scheduler logs the error, remains alive for the next daily
 attempt, and keeps serving the last successfully generated documentation. A

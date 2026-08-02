@@ -46,7 +46,7 @@ def build_and_publish() -> None:
 
 
 def next_run() -> datetime:
-    value = os.getenv("DBT_RUN_TIME", "02:00")
+    value = os.getenv("DBT_RUN_TIME", "07:00")
     try:
         hour, minute = (int(part) for part in value.split(":"))
         if not (0 <= hour <= 23 and 0 <= minute <= 59):

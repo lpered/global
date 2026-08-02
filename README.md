@@ -356,7 +356,9 @@ The repository includes `global/docker-compose.yml`, which creates three service
    day. After a successful build it generates and publishes dbt docs.
 2. `dbt-docs` serves the most recently successful documentation with Nginx.
 3. `evidence-bi` builds and serves BI dashboards over the production `rpt_*`
-   models. It reuses the scheduler's `SNOWFLAKE_*` variables.
+   models. It reuses the scheduler's `SNOWFLAKE_*` variables. This service is
+   disabled by default through the `evidence` Compose profile. Set
+   `COMPOSE_PROFILES=evidence` in Portainer if you want to build and run it.
 
 In Portainer Business Edition:
 

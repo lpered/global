@@ -44,6 +44,8 @@ services:
       retries: 3
 
   evidence-bi:
+    profiles:
+      - evidence
     build:
       context: ./evidence
       dockerfile: Dockerfile

@@ -348,6 +348,51 @@ dbt docs serve
 
 ## 8. Orchestration approach
 
+### 8.1 Portainer deployment
+
+The repository includes `compose.portainer.yml`, which creates two services:
+
+1. `dbt-scheduler` runs the production dbt build at startup and then once each
+   day. After a successful build it generates and publishes dbt docs.
+2. `dbt-docs` serves the most recently successful documentation with Nginx.
+
+In Portainer Business Edition:
+
+1. Push this repository to a private Git repository accessible by Portainer.
+2. Open **Stacks**, choose **Add stack**, select **Git repository**, and enter
+   the repository URL and credentials.
+3. Set **Compose path** to `compose.portainer.yml` and enable automatic Git
+   updates/webhooks if desired.
+4. Add the environment variables shown in `.env.portainer.example` in
+   Portainer. Store the Snowflake password as a secret or restricted stack
+   variable; do not commit a populated `.env` file.
+5. Deploy the stack and inspect the `dbt-scheduler` logs. By default it runs
+   immediately and then every day at 02:00 in `Europe/London`.
+
+The documentation is exposed at `http://<vps-address>:8080`. To publish it at
+`https://docs.example.com`, create a DNS record pointing to the VPS and configure
+the VPS's existing reverse proxy to forward that hostname to port 8080. Enable
+TLS and authentication at the proxy; dbt docs expose model names, compiled SQL,
+lineage, and warehouse metadata. If the reverse proxy runs in Docker, attach
+`dbt-docs` to its external network and proxy directly to `dbt-docs:80` instead
+of publishing the host port.
+
+Useful stack settings are:
+
+| Variable | Default | Meaning |
+|---|---:|---|
+| `TZ` | `Europe/London` | IANA timezone used by the schedule, including DST |
+| `DBT_RUN_TIME` | `02:00` | Daily local run time in 24-hour `HH:MM` format |
+| `DBT_RUN_ON_START` | `true` | Run once when the scheduler container starts |
+| `DBT_TARGET` | `prod` | dbt profile target |
+| `DBT_FULL_REFRESH` | `false` | Add `--full-refresh` to every scheduled build |
+| `DBT_DOCS_PORT` | `8080` | VPS port serving documentation |
+
+If a run fails, the scheduler logs the error, remains alive for the next daily
+attempt, and keeps serving the last successfully generated documentation. A
+container restart also triggers an immediate retry while `DBT_RUN_ON_START` is
+enabled.
+
 A production workflow would:
 
 1. Ingest source data and attach a trustworthy `_loaded_at` value.

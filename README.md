@@ -39,7 +39,7 @@ All objects are built in the schema selected by the active dbt target. Model
 layers are not split into schemas in this take-home, which keeps development
 objects together and avoids names such as `ANALYTICS_DEV_STAGING`.
 
-### 2.1 Entity relationship diagram
+### 2.1 Entity relationship diagram.
 
 ```mermaid
 erDiagram

@@ -154,7 +154,7 @@ Commented examples in the models show where an `is_incremental()` watermark
 filter could be added after a trustworthy ingestion timestamp exists. dbt seed
 does not automatically create row-level load timestamps.
 
-### 3.3 Test coverage
+### 3.3 Test coverage.
 
 YAML-defined generic tests, including `dbt_expectations`, enforce:
 

@@ -441,3 +441,19 @@ The following are intentionally outside the mock-data implementation:
 Seed column types and tests are configured, but dbt model contracts are not
 applied to seeds. For production source tables, enforce contracts at the
 ingestion boundary and add source freshness and volume monitoring.
+
+## 10. Production exposure and automated deployment
+
+The production Portainer instance runs the dbt scheduler with the `prod` target
+every day at **07:00 UTC**. Because `DBT_RUN_ON_START=true`, deploying or
+restarting the stack also triggers an immediate production dbt run. After a
+successful run, the scheduler regenerates and publishes the dbt documentation.
+
+The Portainer stack is connected to the repository's
+`feature/add-dockerfile` branch. A push to that branch triggers the configured
+webhook, which pulls the latest code and redeploys both the production dbt
+scheduler and the dbt documentation service. This keeps the scheduled runtime
+and published documentation aligned with the deployed branch.
+
+The published dbt documentation is exposed at
+[https://dbt.pirulais.com/](https://dbt.pirulais.com/).

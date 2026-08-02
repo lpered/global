@@ -1,0 +1,29 @@
+{
+  "name": "global-podcast-analytics-evidence",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=7.0.0"
+  },
+  "scripts": {
+    "build": "evidence build",
+    "build:strict": "evidence build:strict",
+    "dev": "evidence dev --open /",
+    "sources": "evidence sources",
+    "sources:strict": "evidence sources --strict"
+  },
+  "dependencies": {
+    "@evidence-dev/core-components": "5.4.2",
+    "@evidence-dev/evidence": "40.1.8",
+    "@evidence-dev/snowflake": "1.2.4",
+    "serve": "14.2.4",
+    "typescript": "5.4.2"
+  },
+  "overrides": {
+    "axios": "^1.7.4",
+    "jsonwebtoken": "9.0.0",
+    "trim@<0.0.3": ">0.0.3"
+  }
+}

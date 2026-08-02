@@ -1,0 +1,2 @@
+select *
+from rpt_average_listen_through_by_country

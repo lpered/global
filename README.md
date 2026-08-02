@@ -350,11 +350,13 @@ dbt docs serve
 
 ### 8.1 Portainer deployment
 
-The repository includes `global/docker-compose.yml`, which creates two services:
+The repository includes `global/docker-compose.yml`, which creates three services:
 
 1. `dbt-scheduler` runs the production dbt build at startup and then once each
    day. After a successful build it generates and publishes dbt docs.
 2. `dbt-docs` serves the most recently successful documentation with Nginx.
+3. `evidence-bi` builds and serves BI dashboards over the production `rpt_*`
+   models. It reuses the scheduler's `SNOWFLAKE_*` variables.
 
 In Portainer Business Edition:
 
@@ -369,9 +371,11 @@ In Portainer Business Edition:
 5. Deploy the stack and inspect the `dbt-scheduler` logs. By default it runs
    immediately and then every day at 07:00 UTC.
 
-The documentation is exposed at `http://<vps-address>:33005`. To publish it at
+The dbt documentation is exposed at `http://<vps-address>:33005`, and Evidence
+is exposed at `http://<vps-address>:33008`. To publish them at
 `https://docs.example.com`, create a DNS record pointing to the VPS and configure
-the VPS's existing reverse proxy to forward that hostname to port 33005. Enable
+the VPS's existing reverse proxy to forward the documentation hostname to port
+33005 and the BI hostname to port 33008. Enable
 TLS and authentication at the proxy; dbt docs expose model names, compiled SQL,
 lineage, and warehouse metadata. If the reverse proxy runs in Docker, attach
 `dbt-docs` to its external network and proxy directly to `dbt-docs:80` instead
@@ -386,7 +390,8 @@ Useful stack settings are:
 | `DBT_RUN_ON_START` | `true` | Run once when the scheduler container starts |
 | `DBT_TARGET` | `prod` | dbt profile target |
 | `DBT_FULL_REFRESH` | `false` | Add `--full-refresh` to every scheduled build |
-| `DBT_DOCS_PORT` | `33005` | VPS port mapped to Nginx port `33006` |
+| `DBT_DOCS_PORT` | `33005` | VPS port mapped to the dbt docs service |
+| `EVIDENCE_PORT` | `33008` | VPS port mapped to the Evidence BI service |
 
 If a run fails, the scheduler logs the error, remains alive for the next daily
 attempt, and keeps serving the last successfully generated documentation. A

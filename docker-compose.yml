@@ -43,5 +43,30 @@ services:
       timeout: 5s
       retries: 3
 
+  evidence-bi:
+    build:
+      context: ./evidence
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      dbt-scheduler:
+        condition: service_healthy
+    ports:
+      - "${EVIDENCE_PORT:-33008}:3000"
+    environment:
+      SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT}
+      SNOWFLAKE_USER: ${SNOWFLAKE_USER}
+      SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD}
+      SNOWFLAKE_ROLE: ${SNOWFLAKE_ROLE}
+      SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE}
+      SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE}
+      SNOWFLAKE_PROD_SCHEMA: ${SNOWFLAKE_PROD_SCHEMA:-ANALYTICS_PROD}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 5m
+
 volumes:
   dbt_docs:

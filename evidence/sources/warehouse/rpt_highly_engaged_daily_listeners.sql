@@ -1,0 +1,2 @@
+select *
+from rpt_highly_engaged_daily_listeners

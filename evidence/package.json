@@ -8,8 +8,8 @@
     "npm": ">=7.0.0"
   },
   "scripts": {
-    "build": "evidence build",
-    "build:strict": "evidence build:strict",
+    "build": "evidence sources && evidence build",
+    "build:strict": "evidence sources --strict && evidence build:strict",
     "dev": "evidence dev --open /",
     "sources": "evidence sources",
     "sources:strict": "evidence sources --strict"
